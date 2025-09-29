@@ -43,7 +43,8 @@ public class SecurityConfig {
             AuthenticationConfiguration authenticationConfiguration,
             @Qualifier("LoginSuccessHandler") AuthenticationSuccessHandler loginSuccessHandler,
             @Qualifier("SocialSuccessHandler") AuthenticationSuccessHandler socialSuccessHandler,
-            JwtService jwtService) {
+            JwtService jwtService
+    ) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.loginSuccessHandler = loginSuccessHandler;
         this.socialSuccessHandler = socialSuccessHandler;
@@ -54,6 +55,14 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
+    }
+
+    // 권한 계층
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+        return RoleHierarchyImpl.withRolePrefix("ROLE_")
+                .role(UserRoleType.ADMIN.name()).implies(UserRoleType.USER.name())
+                .build();
     }
 
     // 비밀번호 단방향(BCrypt) 암호화용 Bean
@@ -76,14 +85,6 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
-    }
-
-    // 권한 계층
-    @Bean
-    public RoleHierarchy roleHierarchy() {
-        return RoleHierarchyImpl.withRolePrefix("ROLE_")
-                .role(UserRoleType.ADMIN.name()).implies(UserRoleType.USER.name())
-                .build();
     }
 
     // SecurityFilterChain
@@ -117,8 +118,13 @@ public class SecurityConfig {
                         .successHandler(socialSuccessHandler));
 
         // 인가
+        // 401 에러 발생 문제. 회원가입 완료 후에 로그인 시도시에 필요 정보를 모두 입력하고 시도했는데 오류 발생함.
+        // 예상 문제로 보내는 request 형식이 백엔드와 프론트엔드간에 달랐을 경우에 이런 경우가 있을 수 있었지만 문제 없었음.
+        // 그래서 두번째는 이 securityConfig 쪽 문제라고 판단해서 리뷰해보니까 이 필터 체인간에 문제가 있었음.
+        // login 부분의 접근 권한 설정을 하지 않아서 자동으로 login 부분을 인증한 사용자만 하도록(인가된) 되어있어서 접근도 못하고 인가 오류 뜨는거였음.
         http
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/login").permitAll()
                         .requestMatchers("/jwt/exchange", "/jwt/refresh").permitAll()
                         .requestMatchers(HttpMethod.POST, "/user/exist", "/user").permitAll()
                         .requestMatchers(HttpMethod.GET, "/user").hasRole(UserRoleType.USER.name())
@@ -131,7 +137,7 @@ public class SecurityConfig {
         http
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint((request, response, authException) -> {
-                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED); // 401 응답
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED); // 401 응답 // 이부분 오류 익셉션 터졌음.
                         })
                         .accessDeniedHandler((request, response, authException) -> {
                             response.sendError(HttpServletResponse.SC_FORBIDDEN); // 403 응답
@@ -141,6 +147,9 @@ public class SecurityConfig {
         // 커스텀 필터 추가
         http
                 .addFilterBefore(new JWTFilter(), LogoutFilter.class);
+
+        http
+                .addFilterBefore(new LoginFilter(authenticationManager(authenticationConfiguration), loginSuccessHandler), UsernamePasswordAuthenticationFilter.class);
 
         // 세션 필터 설정 (STATELESS)
         http

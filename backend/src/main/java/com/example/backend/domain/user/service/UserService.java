@@ -25,6 +25,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -47,6 +48,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
     public Boolean existUser(UserRequestDTO dto) {
         return userRepository.existsByUsername(dto.getUsername());
     }
+
     // 자체 로그인 회원 가입
     @Transactional
     public Long addUser(UserRequestDTO dto) {
@@ -82,6 +84,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
                 .roles(entity.getRoleType().name())
                 .accountLocked(entity.getIsLock())
                 .build();
+
     }
 
     // 자체 로그인 회원 정보 수정
