@@ -42,6 +42,11 @@ function LoginPage() {
 
     };
 
+    // 소셜 로그인 이벤트 처리
+    const handleSocialLogin = (provider) => {
+        window.location.href = `${BACKEND_API_BASE_URL}/oauth2/authorization/${provider}`
+    };
+
     return (
         <div>
             <h1>로그인</h1>
@@ -68,6 +73,12 @@ function LoginPage() {
 
             <button type="submit">계속</button>
             </form>
+            // 소셜 로그인 버튼 추가
+            <div>
+                <button onClick={() => handleSocialLogin("google")}>google로 계속하기</button>
+                <button onClick={() => handleSocialLogin("naver")}>naver로 계속하기</button>
+            </div>
+
         </div>
         
     );
