@@ -19,7 +19,6 @@ public class JwtService {
         this.refreshRepository = refreshRepository;
     }
 
-    // 소셜 로그인 성공 후 쿠키(Refresh) -> 헤더 방식으로 응답 <-- 이건 추후에 작성
     // 소셜 로그인 성공 후 쿠키(Refresh) -> 헤더 방식으로 응답
     @Transactional
     public JWTResponseDTO cookie2Header(

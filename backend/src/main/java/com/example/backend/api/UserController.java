@@ -15,13 +15,14 @@ import java.util.Map;
 @RestController
 public class UserController {
 
+    // 사용자 관련 api 엔드포인트를 정의하는 컨트롤러. 인증된 사용자의 요청을 받아 비즈니스 로직으로 연결하는 역할을 한다.
     private final UserService userService;
 
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
-    // 자체 로그인 유저 존재 확인
+    // 자체 로그인 유저 존재 확인(사용자 존재 여부 확인: 로그인 전)
     @PostMapping(value = "/user/exist", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> existUserApi(
             @Validated(UserRequestDTO.existGroup.class) @RequestBody UserRequestDTO dto
@@ -39,7 +40,7 @@ public class UserController {
         return ResponseEntity.status(201).body(responseBody);
     }
 
-    // 유저 정보
+    // 유저 정보(현재 인증된 사용자의 정보 조회)
     @GetMapping(value = "/user", consumes = MediaType.APPLICATION_JSON_VALUE)
     public UserResponseDTO userMeApi() {
         return userService.readUser();

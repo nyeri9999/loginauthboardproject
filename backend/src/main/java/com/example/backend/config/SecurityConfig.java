@@ -31,7 +31,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity // 스프링 시큐리티를 활성화
 public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
@@ -71,7 +71,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // cors 설정 bean
+    // CORS 설정 Bean
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -91,7 +91,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        // CSRF 보안 필터 disable
+        // 세션 기반의 CSRF 보안 필터 비활성화
         http
                 .csrf(AbstractHttpConfigurer::disable);
 
@@ -104,11 +104,11 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
-        // 기본 Form 기반 인증 필터들 disable
+        // 세션 기반의 기본 Form 기반 인증 필터들 disable
         http
                 .formLogin(AbstractHttpConfigurer::disable);
 
-        // 기본 Basic 인증 필터 disable
+        // 세션 기반의 기본 Basic 인증 필터 disable
         http
                 .httpBasic(AbstractHttpConfigurer::disable);
 
@@ -130,6 +130,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/user").hasRole(UserRoleType.USER.name())
                         .requestMatchers(HttpMethod.PUT, "/user").hasRole(UserRoleType.USER.name())
                         .requestMatchers(HttpMethod.DELETE, "/user").hasRole(UserRoleType.USER.name())
+                        // 게시판 기능 추가
+                        .requestMatchers(HttpMethod.GET, "/boards", "/board/{id}").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/boards").hasRole(UserRoleType.USER.name())
+                        .requestMatchers(HttpMethod.PUT, "/boards/{id}").hasRole(UserRoleType.USER.name())
+                        .requestMatchers(HttpMethod.DELETE, "/boards/{id}").hasRole(UserRoleType.USER.name())
                         .anyRequest().authenticated()
                 );
 

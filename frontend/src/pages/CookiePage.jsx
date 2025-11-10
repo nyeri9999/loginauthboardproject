@@ -5,7 +5,8 @@ const BACKEND_API_BASE_URL = import.meta.env.VITE_BACKEND_API_BASE_URL
 
 function CookiePage() {
 
-    navigate = useNavigate();
+    // navigate const로 변수 선언 안하면 인식 못함
+    const navigate = useNavigate();
         
     useEffect (() => {
         const cookieToBody = async () => {

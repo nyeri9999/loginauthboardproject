@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "jwt_refresh_entity")
+@Table(name = "jwt_refresh_entity") // 해당 설정 이름 테이블과 매핑됨.
 @Getter
 @Builder
 @NoArgsConstructor

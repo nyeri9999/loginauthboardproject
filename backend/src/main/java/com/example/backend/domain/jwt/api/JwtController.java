@@ -34,7 +34,7 @@ public class JwtController {
     public JWTResponseDTO jwtRefreshApi(
             @Validated @RequestBody RefreshRequestDTO dto
     ) {
-        return jwtService.refreshRotate(dto);
+        return jwtService.refreshRotate(dto); // 새로 발급된 refresh 토큰을 검증하는 로직.
     }
 
 }
