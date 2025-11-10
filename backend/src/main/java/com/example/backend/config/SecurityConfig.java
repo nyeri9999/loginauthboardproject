@@ -131,7 +131,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/user").hasRole(UserRoleType.USER.name())
                         .requestMatchers(HttpMethod.DELETE, "/user").hasRole(UserRoleType.USER.name())
                         // 게시판 기능 추가
-                        .requestMatchers(HttpMethod.GET, "/boards", "/board/{id}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/boards", "/boards/{id}").permitAll()
                         .requestMatchers(HttpMethod.POST, "/boards").hasRole(UserRoleType.USER.name())
                         .requestMatchers(HttpMethod.PUT, "/boards/{id}").hasRole(UserRoleType.USER.name())
                         .requestMatchers(HttpMethod.DELETE, "/boards/{id}").hasRole(UserRoleType.USER.name())
